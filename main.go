@@ -80,9 +80,3 @@ func deleteKeyValueHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNoContent)
 }
-
-type HelloStruct struct {
-	ID string `json:"ID"`
-	H  struct{ L string }
-	L  []int
-}
