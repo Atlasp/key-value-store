@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 )
 
 func main() {
+	fmt.Println("Starting the server")
 	r := mux.NewRouter()
 
 	api := r.PathPrefix("/v1").Subrouter()
@@ -24,7 +26,7 @@ func main() {
 }
 
 func helloGoHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello Gorilla! \n"))
+	w.Write([]byte("Hello Key-Value store! \n"))
 }
 
 func putKeyIntoStoreHandler(w http.ResponseWriter, r *http.Request) {
