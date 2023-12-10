@@ -11,7 +11,7 @@ import (
 type Circuit func(ctx context.Context) (string, error)
 
 func Breaker(circuit Circuit, failureThreshold uint) Circuit {
-	var consecutiveFailure int = 0
+	var consecutiveFailure = 0
 	var lastAttempt = time.Now()
 	var m sync.RWMutex
 

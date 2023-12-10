@@ -7,13 +7,21 @@ import (
 	"log"
 	"net/http"
 
+	"cloud_native/filetranscationlog"
 	"cloud_native/store"
 	"github.com/gorilla/mux"
 )
 
+var transact *filetranscationlog.FileTransactionLog
+
 func main() {
 	fmt.Println("Starting the server")
 	r := mux.NewRouter()
+
+	err := initializeTransactionLog()
+	if err != nil {
+		panic(err)
+	}
 
 	api := r.PathPrefix("/v1").Subrouter()
 
@@ -48,6 +56,8 @@ func putKeyIntoStoreHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	transact.WritePut(key, string(value))
+
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -80,5 +90,36 @@ func deleteKeyValueHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	transact.WriteDelete(key)
+
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func initializeTransactionLog() error {
+	var err error
+
+	transact, err = filetranscationlog.New("transaction.log")
+	if err != nil {
+		return fmt.Errorf("failed to create event logger: %w", err)
+	}
+
+	events, errs := transact.ReadEvents()
+	e, ok := filetranscationlog.Event{}, true
+
+	for ok && err == nil {
+		select {
+		case err, ok = <-errs:
+		case e, ok = <-events:
+			switch e.EventType {
+			case filetranscationlog.EventDelete:
+				err = store.Delete(e.Key)
+			case filetranscationlog.EventPut:
+				err = store.Put(e.Key, e.Value)
+			}
+		}
+	}
+
+	transact.Run()
+
+	return err
 }
