@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 
-	"cloud_native/store"
+	"cloud_native/pkg/store"
 	"github.com/gorilla/mux"
 )
 

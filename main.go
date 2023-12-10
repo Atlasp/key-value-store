@@ -7,12 +7,12 @@ import (
 	"log"
 	"net/http"
 
-	"cloud_native/filetranscationlog"
-	"cloud_native/store"
+	"cloud_native/pkg/store"
+	"cloud_native/pkg/transcationlog"
 	"github.com/gorilla/mux"
 )
 
-var transact *filetranscationlog.FileTransactionLog
+var transact *transcationlog.FileTransactionLog
 
 func main() {
 	fmt.Println("Starting the server")
@@ -98,22 +98,22 @@ func deleteKeyValueHandler(w http.ResponseWriter, r *http.Request) {
 func initializeTransactionLog() error {
 	var err error
 
-	transact, err = filetranscationlog.New("transaction.log")
+	transact, err = transcationlog.NewFileTransactionLog("transaction.log")
 	if err != nil {
 		return fmt.Errorf("failed to create event logger: %w", err)
 	}
 
 	events, errs := transact.ReadEvents()
-	e, ok := filetranscationlog.Event{}, true
+	e, ok := transcationlog.Event{}, true
 
 	for ok && err == nil {
 		select {
 		case err, ok = <-errs:
 		case e, ok = <-events:
 			switch e.EventType {
-			case filetranscationlog.EventDelete:
+			case transcationlog.EventDelete:
 				err = store.Delete(e.Key)
-			case filetranscationlog.EventPut:
+			case transcationlog.EventPut:
 				err = store.Put(e.Key, e.Value)
 			}
 		}

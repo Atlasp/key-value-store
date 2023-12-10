@@ -1,4 +1,4 @@
-package filetranscationlog
+package transcationlog
 
 type EventType byte
 

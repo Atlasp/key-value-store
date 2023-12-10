@@ -1,7 +1,7 @@
 package rest
 
 import (
-	"cloud_native/filetranscationlog"
+	"cloud_native/pkg/transcationlog"
 	"github.com/gorilla/mux"
 )
 
@@ -9,7 +9,7 @@ type TransactionLogger interface {
 	WritePut(key, value string)
 	WriteDelete(key string)
 	Err() <-chan error
-	ReadEvents() (<-chan filetranscationlog.Event, <-chan error)
+	ReadEvents() (<-chan transcationlog.Event, <-chan error)
 	Run()
 	Close() error
 }
