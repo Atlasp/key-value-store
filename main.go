@@ -12,7 +12,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var transact *transcationlog.FileTransactionLog
+type TransactionLogger interface {
+	WritePut(key, value string)
+	WriteDelete(key string)
+	Err() <-chan error
+	ReadEvents() (<-chan transcationlog.Event, <-chan error)
+	Run()
+	Close() error
+}
+
+var transact TransactionLogger
 
 func main() {
 	fmt.Println("Starting the server")
@@ -30,7 +39,7 @@ func main() {
 	api.HandleFunc("/{key}", getKeyValueHandler).Methods("GET")
 	api.HandleFunc("/{key}", deleteKeyValueHandler).Methods("DELETE")
 
-	log.Fatal(http.ListenAndServe(":8080", r))
+	log.Fatal(http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", r))
 }
 
 func helloGoHandler(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +107,13 @@ func deleteKeyValueHandler(w http.ResponseWriter, r *http.Request) {
 func initializeTransactionLog() error {
 	var err error
 
-	transact, err = transcationlog.NewFileTransactionLog("transaction.log")
+	//transact, err = transcationlog.NewFileTransactionLog("transaction.log")
+	transact, err = transcationlog.NewPostgresTransactionLog(transcationlog.PostgresDBParams{
+		DbName:   "postgres",
+		Host:     "localhost",
+		User:     "admin",
+		Password: "admin",
+	})
 	if err != nil {
 		return fmt.Errorf("failed to create event logger: %w", err)
 	}

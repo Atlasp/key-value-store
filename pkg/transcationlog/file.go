@@ -95,3 +95,23 @@ func (l *FileTransactionLog) ReadEvents() (<-chan Event, <-chan error) {
 func (l *FileTransactionLog) Close() error {
 	return l.file.Close()
 }
+
+//func (l *FileTransactionLog) Initialize() {
+//	var err error
+//
+//	events, errs := l.ReadEvents()
+//	e, ok := Event{}, true
+//
+//	for ok && err == nil {
+//		select {
+//		case err, ok = <-errs:
+//		case e, ok = <-events:
+//			switch e.EventType {
+//			case EventDelete:
+//				err = store.Delete(e.Key)
+//			case EventPut:
+//				err = store.Put(e.Key, e.Value)
+//			}
+//		}
+//	}
+//}
