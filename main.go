@@ -107,13 +107,13 @@ func deleteKeyValueHandler(w http.ResponseWriter, r *http.Request) {
 func initializeTransactionLog() error {
 	var err error
 
-	//transact, err = transcationlog.NewFileTransactionLog("transaction.log")
-	transact, err = transcationlog.NewPostgresTransactionLog(transcationlog.PostgresDBParams{
-		DbName:   "postgres",
-		Host:     "localhost",
-		User:     "admin",
-		Password: "admin",
-	})
+	transact, err = transcationlog.NewFileTransactionLog("transaction.log")
+	//transact, err = transcationlog.NewPostgresTransactionLog(transcationlog.PostgresDBParams{
+	//	DbName:   "postgres",
+	//	Host:     "localhost",
+	//	User:     "admin",
+	//	Password: "admin",
+	//})
 	if err != nil {
 		return fmt.Errorf("failed to create event logger: %w", err)
 	}
